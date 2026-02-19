@@ -7,7 +7,7 @@ This repository contains the Matlab code for performing linear system identifica
 
 # Experimental Data
 
-From the experimental [CPT publication](https://www.frontiersin.org/journals/physiology/articles/10.3389/fphys.2022.752900/full#s5), the physiology data are in PHYSIO_MASTER_FINAL.mat and the pupilometry data are in CPT_EYE_Master.mat. The scripts PHYSIO_Plot_Main_Figs_Analyses.m and EYE_Plot_Main_Figs_Analyses.m generates plots of the experimental data with descriptive statistics. These scripts remove subjects with missing or corrupted data, and average over all subjects in the population. These require the resampling toolbox.
+From the experimental [CPT publication](https://www.frontiersin.org/journals/physiology/articles/10.3389/fphys.2022.752900/full#s5), the physiology data are in PHYSIO_MASTER_FINAL.mat and the pupilometry data are in CPT_EYE_Master.mat. The scripts PHYSIO_Plot_Main_Figs_Analyses.m and EYE_Plot_Main_Figs_Analyses.m generate plots of the experimental data with descriptive statistics. These scripts remove subjects with missing or corrupted data, and average over all subjects in the population. These require the resampling toolbox.
 
 # System Identification Scripts
 
