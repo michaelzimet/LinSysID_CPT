@@ -1,5 +1,5 @@
 %EYE System ID, after running the file EYE_Plot_Main_Figs_Analyses.m
-nx=4;
+nx=2;
 
 % step function input,
 % prep time is 40s through 64s
@@ -24,10 +24,19 @@ view = 'ss'; %'ss', 'ds', or 'tf'
 
 a = figure;
 t= tiledlayout(2,1);
+aa(1) = nexttile;
+title(aa(1),'Treatment','Interpreter','latex','FontSize',12)
+hold(aa(1),'on')
+aa(2) = nexttile;
+title(aa(2),'Control','Interpreter','latex','FontSize',12)
+hold(aa(2),'on')
+
 b = figure;
-tt= tiledlayout(5,2);
+tt= tiledlayout(5,2, TileIndexing="columnmajor");
+
 f = figure;
 ttt= tiledlayout(2,2);
+
 AICvec = zeros(5,2);
 MSEvec = zeros(5,2);
 
@@ -83,14 +92,15 @@ for(iCond=1:2)
 
         %start at t=0
         figure(a)
-        if iOrder==1
-            nexttile;
-        end
-        plot(0:length(ysys.OutputData)-1, ysys.OutputData, 'Color', thisColor./255, 'LineWidth', 3)
-        ylim([0 1])
-        xlim([0 130])
-        xticks(0:30:120)
-        yticks(0:0.2:1.0)
+        plot(aa(iCond),0:length(ysys.OutputData)-1, ysys.OutputData, 'Color', thisColor./255, 'LineWidth', 3)
+        ylim(aa(1),[0 1])
+        xlim(aa(1),[0 130])
+        xticks(aa(1),0:30:120)
+        yticks(aa(1),0:0.2:1.0)
+        ylim(aa(2),[0 1])
+        xlim(aa(2),[0 130])
+        xticks(aa(2),0:30:120)
+        yticks(aa(2),0:0.2:1.0)
         hold on
       
         thisStead_disc = -sys.C * inv(sys.A - eye(nx)) * sys.B;
@@ -111,7 +121,7 @@ for(iCond=1:2)
         %eigavec(:, iOrder)= eig(thisA); 
 
         figure(b)
-        nexttile;      
+        ab(iOrder*2 - sum(iCond==1)) = nexttile;
         plot(0:length(ysys.OutputData)-1,this_ts)
         hold on
         plot(0:length(ysys.OutputData)-1, ysys.OutputData)
@@ -141,12 +151,18 @@ for(iCond=1:2)
 figure(a)
 xlabel(t, 'Time (s)','Interpreter', 'latex')
 ylabel(t,[meas ', ' thisYLabel], 'Interpreter','latex');
-saveas(a, ['figs/' meas '_models.eps'],'epsc')
+%saveas(a, ['figs/' meas '_models.eps'],'epsc')
 
 figure(b)
+for iOrder = 1:5
+    ab_row = nexttile(iOrder);      % left tile of row
+    ylabel(ab_row, "Trial " + num2str(iOrder), 'Interpreter','latex', 'FontSize',12)
+end
+title(ab(1),'Treatment','Interpreter','latex','FontSize',12)
+title(ab(2),'Control','Interpreter','latex','FontSize',12)
 xlabel(tt, 'Time (s)','Interpreter', 'latex')
 ylabel(tt, [meas ', ' thisYLabel], 'Interpreter','latex')
-saveas(b, ['figs/' meas '_physioSysID.eps'],'epsc')
+saveas(b, ['figs/' meas '_planar_physioSysID.eps'],'epsc')
 
 figure(f)
 xlabel(ttt, 'Time (s)','Interpreter', 'latex')
