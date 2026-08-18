@@ -11,7 +11,7 @@ From the experimental [CPT publication](https://www.frontiersin.org/journals/phy
 
 # System Identification Scripts
 
-The scripts physio_sysID.m and eye_sysID.m perform linear system idenfication of these time series data. These generate Figs 1 through 6 of the paper, as well as Supplementary Figs S1 through S12. These also generate all the data for Tables 1, 2, and S1 through S7 as well as the sample model parameters in the Supplement.
+The scripts physio_sysID.m and eye_sysID.m perform linear system idenfication of these time series data. These generate Figs 1 through 6 of the paper, as well as Supplementary Figs S1 through S12. These also generate all the data for Tables 1 through 3 and S1 through S7 as well as the sample model parameters in the Supplement.
 
 # Analyses
 
