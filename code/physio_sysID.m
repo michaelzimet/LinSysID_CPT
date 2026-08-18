@@ -1,7 +1,7 @@
 %PHYSIO System ID, after running the file PHYSIO_Plot_Main_Figs_Analyses.m
 
-nx=3;
-meas = 'CO'; %HR, CO, BP, SV
+nx=4;
+meas = 'HR'; %HR, CO, BP, SV
 
 % step function input,
 % prep time is 40s through 64s
@@ -48,11 +48,38 @@ hold(aa(2),'on')
 b = figure;
 tt= tiledlayout(5,2, TileIndexing="columnmajor");
 
-%f = figure;
-%ttt= tiledlayout(2,2, TileIndexing="rowmajor");
+%{
+c = figure;
+q= tiledlayout(2,1);
+cc(1) = nexttile;
+title(cc(1),'Treatment, 0.5 Hz','Interpreter','latex','FontSize',12)
+hold(cc(1),'on')
+cc(2) = nexttile;
+title(cc(2),'Control, 0.5 Hz','Interpreter','latex','FontSize',12)
+hold(cc(2),'on')
+%}
+
+d = figure;
+qq= tiledlayout(5,2, TileIndexing="columnmajor");
+
+e = figure;
+r= tiledlayout(2,1);
+ee(1) = nexttile;
+title(ee(1),'Treatment','Interpreter','latex','FontSize',12)
+hold(ee(1),'on')
+ee(2) = nexttile;
+title(ee(2),'Control','Interpreter','latex','FontSize',12)
+hold(ee(2),'on')
+
+f = figure;
+ttt= tiledlayout(2,2, TileIndexing="rowmajor");
 
 AICvec = zeros(5,2);
 MSEvec = zeros(5,2);
+Resid_mean_vec = zeros(5,2);
+Resid_std_vec = zeros(5,2);
+Resid_mean_vec_ds = zeros(5,2);
+Resid_std_vec_ds = zeros(5,2);
 
 for(iCond=1:2)
     switch iCond
@@ -82,13 +109,34 @@ for(iCond=1:2)
         sys = n4sid(data, nx,n4sid_opts,'DisturbanceModel','none');
         [ysys,fit,ic]=compare(data,sys);
        
-        %Resid = this_ts - ysys.OutputData;
-        %MSE = (1/length(this_ts))*sum(Resid' * Resid);
+        Resid = this_ts - ysys.OutputData;
+        MSE_calc = (1/length(this_ts))*sum(Resid' * Resid);
         MSE = sys.Report.Fit.MSE;
         AIC = length(this_ts)*log(MSE) + 2*K + length(this_ts)*(log(2*pi)+1);
         MSEvec(iOrder, iCond) = MSE;
         AICvec(iOrder, iCond) = AIC;
         
+        
+        %downsampling analysis
+        this_ts_ds = this_ts(1:2:end);
+        CPT_input_ds = CPT_input(1:2:end);
+        data_ds = iddata(this_ts_ds, CPT_input_ds, 1);
+        sys_ds = n4sid(data_ds, nx,n4sid_opts,'DisturbanceModel','none');
+        [ysys_ds,fit_ds,ic_ds]=compare(data_ds,sys_ds);
+       
+        Resid_ds = this_ts_ds - ysys_ds.OutputData;
+        %MSE = (1/length(this_ts))*sum(Resid' * Resid);
+        %MSE_ds = sys_ds.Report.Fit.MSE;
+        %AIC_ds = length(this_ts_ds)*log(MSE_ds) + 2*K + length(this_ts_ds)*(log(2*pi)+1);
+        %MSEvec_ds(iOrder, iCond) = MSE_ds;
+        %AICvec_ds(iOrder, iCond) = AIC_ds;
+        %}
+        
+         %Residual mean and standard deviation
+        Resid_mean_vec(iOrder, iCond) = mean(Resid);
+        Resid_std_vec(iOrder, iCond) = std(Resid);
+        Resid_mean_vec_ds(iOrder, iCond) = mean(Resid_ds);
+        Resid_std_vec_ds(iOrder, iCond) = std(Resid_ds);
 
         %start at t=0
         figure(a)
@@ -102,6 +150,37 @@ for(iCond=1:2)
         xticks(aa(2),0:30:120)
         yticks(aa(2),0:0.2:1.0)
         hold on
+
+        figure(e)
+        %plot(ee(iCond),0:length(ysys.OutputData)-1, Resid, 'Color', thisColor./255, 'LineWidth', 3)
+        %plot(ee(iCond),Resid_auto, 'Color', thisColor./255, 'LineWidth', 3)
+        histogram(ee(iCond), Resid, 'BinWidth', 0.01, 'EdgeColor', thisColor./255,'FaceColor', thisColor./255,'FaceAlpha',0.05,  'LineWidth', 3, 'Normalization', 'percentage')
+        ylim(ee(1),[0 35])
+        xlim(ee(1),[-0.3 0.3])
+        xticks(ee(1),-0.3:0.1:0.3)
+        %yt = yticks;
+        %yticklabels(ee(1), num2str(yt*100))
+        %yticks(ee(1),0:0.2:1.0)
+        ylim(ee(2),[0 35])
+        xlim(ee(2),[-0.3 0.3])
+        xticks(ee(2),-0.3:0.1:0.3)
+        %yticklabels(ee(2), num2str(yticks*100))
+        %yticks(ee(2),0:0.2:1.0)
+        hold on
+
+        %{
+        figure(c)
+        plot(cc(iCond),2*(0:length(ysys_ds.OutputData)-1), ysys_ds.OutputData, 'Color', thisColor./255, 'LineWidth', 3)
+        ylim(cc(1),[0 1])
+        xlim(cc(1),[0 130])
+        xticks(cc(1),0:30:120)
+        yticks(cc(1),0:0.2:1.0)
+        ylim(cc(2),[0 1])
+        xlim(cc(2),[0 130])
+        xticks(cc(2),0:30:120)
+        yticks(cc(2),0:0.2:1.0)
+        hold on
+        %}
       
         thisStead_disc = -sys.C * inv(sys.A - eye(nx)) * sys.B;
         steadvec_disc(iOrder) = thisStead_disc;
@@ -130,6 +209,18 @@ for(iCond=1:2)
         xticks(0:30:120)
         yticks(0:0.5:1.0)
 
+        
+        figure(d)
+        ad(iOrder*2 - sum(iCond==1)) = nexttile;
+        plot(2*(0:length(ysys_ds.OutputData)-1),this_ts_ds)
+        hold on
+        plot(2*(0:length(ysys_ds.OutputData)-1), ysys_ds.OutputData)
+        ylim([0 1])
+        xlim([0 130])
+        xticks(0:30:120)
+        yticks(0:0.5:1.0)
+        
+
         figure(f)
         if iOrder ==1 
             af(iCond)=nexttile;
@@ -153,6 +244,19 @@ xlabel(t, 'Time (s)','Interpreter', 'latex')
 ylabel(t,[meas ', ' thisYLabel], 'Interpreter','latex');
 saveas(a, ['figs/' meas '_models.eps'],'epsc')
 
+%{
+figure(c)
+xlabel(q, 'Time (s)','Interpreter', 'latex')
+ylabel(q,[meas ', ' thisYLabel], 'Interpreter','latex');
+saveas(c, ['figs/' meas '_models_ds.eps'],'epsc')
+%}
+
+figure(e)
+xlabel(r, 'Residual','Interpreter', 'latex')
+ylabel(r, 'Frequency (\%)', 'Interpreter','latex');
+saveas(e, ['figs/' meas '_Resid.eps'],'epsc')
+
+
 figure(b)
 for iOrder = 1:5
     ab_row = nexttile(iOrder);      % left tile of row
@@ -164,9 +268,22 @@ xlabel(tt, 'Time (s)','Interpreter', 'latex')
 ylabel(tt, [meas ', ' thisYLabel], 'Interpreter','latex')
 saveas(b, ['figs/' meas '_physioSysID.eps'],'epsc')
 
+
+figure(d)
+for iOrder = 1:5
+    ad_row = nexttile(iOrder);      % left tile of row
+    ylabel(ad_row, "Trial " + num2str(iOrder), 'Interpreter','latex', 'FontSize',12)
+end
+title(ad(1),'Treatment, 0.5 Hz','Interpreter','latex','FontSize',12)
+title(ad(2),'Control, 0.5 Hz','Interpreter','latex','FontSize',12)
+xlabel(qq, 'Time (s)','Interpreter', 'latex')
+ylabel(qq, [meas ', ' thisYLabel], 'Interpreter','latex')
+saveas(d, ['figs/' meas '_physioSysID_ds.eps'],'epsc')
+
+
 figure(f)
-%title(af(1),'Treatment','Interpreter','latex','FontSize',12)
-%title(af(2),'Control','Interpreter','latex','FontSize',12)
+title(af(1),'Treatment','Interpreter','latex','FontSize',12)
+title(af(2),'Control','Interpreter','latex','FontSize',12)
 xlabel(ttt, 'Time (s)','Interpreter', 'latex')
 saveas(f, ['figs/stead.eps'],'epsc')
 
