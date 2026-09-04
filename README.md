@@ -1,7 +1,6 @@
 <a href="https://doi.org/10.5281/zenodo.18048428"><img src="https://zenodo.org/badge/1122413425.svg" alt="DOI"></a>
 
-# LinSysID_CPT
-Linear System Identification of Heart Physiology and Pupilometry Time Series from the Cold Presser Task
+# Linear System Identification of Heart Physiology and Pupilometry Time Series from the Cold Presser Task
 
 This repository contains the Matlab code for performing linear system identification of time series data recorded during the Cold Presser Task.
 
